@@ -6,6 +6,7 @@ import requests
 
 DB_PATH = "data/project.db"
 
+
 def create_database():
     """Creates an SQLite database and returns the connection."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -18,10 +19,12 @@ def load_df_to_db(conn, df, table_name):
     """Loads a dataframe into a database table."""
     df.to_sql(table_name, conn, if_exists="replace", index=False)
 
+
 def load_panglao_to_db(conn, file_path, table_name):
     df = pd.read_csv(file_path)
     load_df_to_db(conn, df, table_name)
     print("Loaded panglaoDB to table panglaoDB")
+
 
 def load_cellmarker2_to_db(conn, file_path, table_name):
     df = pd.read_excel(file_path)
@@ -52,13 +55,18 @@ def download_files(url, save_path):
     response = requests.get(url, headers)
     if response.status_code == 200:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        with open(save_path, 'wb') as f:
+        with open(save_path, "wb") as f:
             f.write(response.content)
         print(f"Downloaded: {save_path}")
     else:
-        raise Exception(f"Failed to download {url}, Status Code: {response.status_code}")
+        raise Exception(
+            f"Failed to download {url}, Status Code: {response.status_code}"
+        )
+
 
 def setup_database():
+    # TODO: Add misigdb for human and mouse
+    # TODO: Add scType cell type database
     panglaoDB_file_path = "data/panglaoDB.csv"
     cellmarker2_file_path = "data/cellmarker2.xlsx"
 
@@ -71,5 +79,5 @@ def setup_database():
     load_cellmarker2_to_db(conn, cellmarker2_file_path, "cell_marker")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     setup_database()
