@@ -1,13 +1,41 @@
 import requests
 import pandas as pd
-from typing import List, Dict
+from typing import Iterable, List, Dict, Literal
 import json
+from concurrent.futures import ThreadPoolExecutor
+
+
+GeneSetLibrary = Literal[
+    "CellMarker_2024",
+    "CellMarker_Augmented_2021",
+    "Descartes_Cell_Types_and_Tissue_2021",
+    "PanglaoDB_Augmented_2021",
+    "Azimuth_Cell_Types_2021",
+    "Azimuth_2023",
+    "Tabula_Sapiens",
+    "Human_Gene_Atlas",
+    "Tabula_Muris",
+    "Mouse_Gene_Atlas",
+]
 
 
 class Enrichr:
 
-    ENRICHR_URL = "https://maayanlab.cloud/Enrichr/"
-    SPEEDRICHR_URL = "https://maayanlab.cloud/speedrichr/"
+    enrichr_url = "https://maayanlab.cloud/enrichr/"
+    speedrichr_url = "https://maayanlab.cloud/speedrichr/"
+
+    default_cell_type_libraries: Iterable[GeneSetLibrary] = [
+        "CellMarker_2024",
+        "CellMarker_Augmented_2021",
+        "Descartes_Cell_Types_and_Tissue_2021",
+        "PanglaoDB_Augmented_2021",
+        "Azimuth_Cell_Types_2021",
+        "Azimuth_2023",
+        "Tabula_Sapiens",
+        "Human_Gene_Atlas",
+        "Tabula_Muris",
+        "Mouse_Gene_Atlas",
+    ]
 
     def __init__(
         self,
@@ -30,7 +58,8 @@ class Enrichr:
 
     def send_gene_list(self) -> int:
 
-        url = Enrichr.ENRICHR_URL + "addList"
+        url = Enrichr.enrichr_url + "addList"
+
         if self.gene_list:
             payload = {
                 "list": (None, "\n".join(self.get_gene_list())),
@@ -40,39 +69,42 @@ class Enrichr:
             raise ValueError("Empty gene list")
 
         response = requests.post(url, files=payload, verify=True)
-
         if not response.ok:
             raise Exception(
                 f"Error sending gene list, status code: {response.status_code}"
             )
 
         data = json.loads(response.text)
-
         if not data["userListId"]:
             raise ValueError("Could not submit gene list")
-
         self.user_list_id = data["userListId"]
+
         return self.user_list_id
 
-    def get_enrichment_results(self, gene_set: str) -> pd.DataFrame:
+    def get_enrichment(
+        self, gene_set: GeneSetLibrary, sort_order: str = "adjusted p-value"
+    ) -> pd.DataFrame | pd.Series:
 
-        url = Enrichr.ENRICHR_URL + "enrich"
+        url = Enrichr.enrichr_url + "enrich"
 
         params = {"userListId": self.user_list_id, "backgroundType": gene_set}
-
         response = requests.get(url, params)
-
         if not response.ok:
             raise Exception(
                 f"Error fetching enrichment results, status code: {response.status_code}"
             )
         data = json.loads(response.text)
+        result = self.format_enrichment_result(data, gene_set, sort_order)
+        if result is None:
+            raise Exception("Could not get enrichment results")
+        return result
 
-        return self.format_enrichment_result(data, gene_set)
-
-    def format_enrichment_result(self,
-        enrichment_result: Dict, gene_set: str
-    ) -> pd.DataFrame:
+    def format_enrichment_result(
+        self,
+        enrichment_result: Dict,
+        gene_set: GeneSetLibrary,
+        sort_order: str | List[str],
+    ) -> pd.DataFrame | pd.Series | None:
         cols = [
             "rank",
             "term name",
@@ -84,11 +116,37 @@ class Enrichr:
             "old p-value",
             "old adjusted p-value",
         ]
-        df = pd.DataFrame(enrichment_result[gene_set], columns=cols)
+        df = pd.DataFrame(enrichment_result[gene_set], columns=pd.Index(cols))
         df["gene_set"] = gene_set
 
         if self.adj_pval_cutoff:
-            return df[df["adjusted p-value"] <= self.adj_pval_cutoff]
+            df = df[df["adjusted p-value"] <= self.adj_pval_cutoff]
         elif self.pval_cutoff:
-            return df[df["p-value"] <= self.pval_cutoff]
-        return df
+            df = df[df["p-value"] <= self.pval_cutoff]
+        if sort_order in df.columns:
+            return df.sort_values(by=sort_order).drop("rank", axis=1)  # type: ignore
+        else:
+            raise KeyError(f"{sort_order} not found")
+
+    def get_cell_type_enrichment(
+        self,
+        gene_sets: Iterable[GeneSetLibrary] | None = None,
+        max_workers: int | None = None,
+        sort_order: str = "adjusted p-value",
+    ):
+
+        if gene_sets is None:
+            gene_sets = Enrichr.default_cell_type_libraries
+        with ThreadPoolExecutor(max_workers=max_workers):
+            results = (
+                pd.concat(  # type: ignore
+                    map(
+                        lambda gene_set: self.get_enrichment(gene_set, sort_order),
+                        gene_sets,
+                    )
+                )
+                .sort_values(by=sort_order)
+                .reset_index(drop=True)
+            )
+
+        return results
