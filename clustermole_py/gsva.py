@@ -54,7 +54,7 @@ def aggregate_expression(
     for group in groups:
         group_idx = adata.obs[adata.obs[groupby] == group].reset_index().index.tolist()
         total_counts = count_matrix[group_idx].sum()  # type: ignore
-        normalized_vector = (count_matrix[group_idx].sum(axis=1) / total_counts) * scale_factor  # type: ignore
+        normalized_vector = (count_matrix[group_idx].sum(axis=0) / total_counts) * scale_factor  # type: ignore
 
         normalized_df.loc[:, group] = normalized_vector
 
