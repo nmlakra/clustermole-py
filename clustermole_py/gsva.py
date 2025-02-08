@@ -2,34 +2,63 @@ from gseapy import gp
 from anndata import AnnData
 import pandas as pd
 import numpy as np
-from scipy import sparse
+from enrichr import GeneSetLibrary
+from typing import List
 
+def get_enrichment(data: pd.DataFrame, gene_sets: GeneSetLibrary | List[GeneSetLibrary]) -> pd.DataFrame:
+    enrichment_df = gp.gsva(data, gene_sets, outdir=None).res2d
+    if isinstance(gene_sets, str):
+        enrichment_df['gene_set'] = gene_sets
+    else:
+        temp_split = enrichment_df['Term'].str.split('__', expand=True)
+        enrichment_df['Term'] = temp_split[1]
+        enrichment_df['gene_set'] = temp_split[0]
+    enrichment_df.rename(columns={
+        'Name': 'group',
+        'Term': 'term',
+        'ES': 'enrichment_score'
+    }, inplace=True)
 
-class GSVA:
+    return enrichment_df
 
-    def __init__(self):
-        pass
+def aggregate_expression(
+    adata: AnnData,
+    groupby: str,
+    scale_factor: int,
+    layer: str | None = None,
+    use_raw: bool = False,
+    apply_log1p: bool = True
+) -> pd.DataFrame | None:
 
-    def aggregate_expression(
-        self, adata: AnnData, group_by: str, scale_factor: int
-    ) -> pd.DataFrame | None:
+    if layer and use_raw:
+        raise Exception("Cannot have `layer` and have `use_raw=True`")
 
+    if layer is None and use_raw == False:
         count_matrix = adata.X
-        groups = adata.obs[group_by].unique()
+    elif layer is not None:
+        assert adata.layers[layer] is not None, "Invailid `layer` key"
+        count_matrix = adata.layers[layer]
+    else:
+        count_matrix = adata.raw.X
 
-        if not groups:
-            return None
-        if not count_matrix:
-            return None
+    groups = adata.obs[groupby].unique()
 
-        normalized_df = pd.DataFrame(columns=groups, index=adata.var.index)
-        for group in groups:
-            group_idx = adata.obs.reset_index()[adata.obs[group_by] == group][
-                group_by
-            ].tolist()
-            total_counts = count_matrix[group_idx].sum()  # type: ignore
-            normalized_vector = (count_matrix[group_idx].sum(axis=1) / total_counts) * scale_factor  # type: ignore
+    if not groups:
+        return None
+    if count_matrix is None:
+        return None
 
-            normalized_df.loc[:, group] = normalized_vector
+    normalized_df = pd.DataFrame(columns=groups, index=adata.var.index)
+    for group in groups:
+        group_idx = adata.obs.reset_index()[adata.obs[groupby] == group][
+            groupby
+        ].tolist()
+        total_counts = count_matrix[group_idx].sum()  # type: ignore
+        normalized_vector = (count_matrix[group_idx].sum(axis=1) / total_counts) * scale_factor  # type: ignore
 
-        return normalized_df
+        normalized_df.loc[:, group] = normalized_vector
+
+    if apply_log1p:
+            return normalized_df.map(np.log1p)
+
+    return normalized_df
