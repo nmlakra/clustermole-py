@@ -38,11 +38,14 @@ def aggregate_expression(
     count_matrix = None
     if use_raw:
         count_matrix = adata.raw.X
+        gene_index = adata.raw.var.index
     elif layer is not None:
         assert adata.layers[layer] is not None, "Invailid `layer` key"
         count_matrix = adata.layers[layer]
+        gene_index = adata.var.index
     else:
         count_matrix = adata.X
+        gene_index = adata.var.index
 
     groups = adata.obs[groupby].unique()
 
@@ -51,7 +54,7 @@ def aggregate_expression(
     if count_matrix is None:
         return None
 
-    normalized_df = pd.DataFrame(columns=groups, index=adata.var.index)
+    normalized_df = pd.DataFrame(columns=groups, index=gene_index)
     for group in groups:
         group_idx = adata.obs[adata.obs[groupby] == group].reset_index().index.tolist()
         total_counts = count_matrix[group_idx].sum()  # type: ignore
