@@ -25,12 +25,12 @@
     *  Returns enrichment results in easy-to-read tables (Pandas DataFrames - *if applicable to your package*).
     *  Output tables include p-values, adjusted p-values, combined scores, and overlapping genes for enriched terms.
 
-## 📦 Installation (Development/Local Installation - Not on PyPI yet)
+## 📦 Installation (Development/Local Installation)
 
-For this pre-release version, you can install `clustermole_py` directly from GitHub using pip:
+For this version, you can install `clustermole_py` directly from GitHub using pip:
 
 ```bash
-!pip install scanpy igraph leidenalg git+[https://github.com/nmlakra/clustermole-py.git](https://github.com/nmlakra/clustermole-py.git)
+pip install git+[https://github.com/nmlakra/clustermole-py.git](https://github.com/nmlakra/clustermole-py.git)
 ```
 
 Once installed, you can import and use `clustermole_py` in your Python environment.
@@ -44,7 +44,6 @@ Here's a simplified example of how to use `clustermole_py` to annotate cell clus
 
 ```python
 import scanpy as sc
-import clustermole_py as clmole
 
 # Load data and perform Leiden clustering (example using pbmc3k dataset)
 adata = sc.datasets.pbmc3k_processed()
@@ -81,8 +80,8 @@ print(cell_type_results.head()) # Display top results
 |    | term name                             |     p-value |   odds ratio |   combined score | overlapping genes                                   |   adjusted p-value | gene_set                    |
 |---:|:--------------------------------------|------------:|-------------:|-----------------:|:----------------------------------------------------|-------------------:|:----------------------------|
 |  0 | B cell:Kidney                         | 5.08603e-18 |     103.437  |         4118.88  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]          | 8.54452e-16        | CellMarker_Augmented_2021   |
-|  1 | B Cell Kidney Human                   | 4.98039e-18 |     103.601  |         4127.57  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]          | 9.21372e-16        | CellMarker_2024             |
-|  2 | B Cell Lung Human                     | 1.92402e-16 |    1664.67   |        60239.2   | ['CD79B', 'CD79A', 'TCL1A', 'MZB1', ...]            | 1.77972e-14        | CellMarker_2024             |
+|  1 | B Cell:Kidney Human                   | 4.98039e-18 |     103.601  |         4127.57  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]          | 9.21372e-16        | CellMarker_2024             |
+|  2 | B Cell:Lung Human                     | 1.92402e-16 |    1664.67   |        60239.2   | ['CD79B', 'CD79A', 'TCL1A', 'MZB1', ...]            | 1.77972e-14        | CellMarker_2024             |
 ... (and so on)
 ```
 
@@ -109,7 +108,7 @@ print(gsva_results_panglaodb.head()) # Display top results
 ```
 |    | group        | term                     |   enrichment_score | gene_set                 |
 |---:|:-------------|:-------------------------|-------------------:|:-------------------------|
-|  0 | 1-Mar        | B cell                   |          0.198753  | PanglaoDB_Augmented_2021 |
+|  0 | B cells      | B cell                   |          0.198753  | PanglaoDB_Augmented_2021 |
 |  1 | NK cells     | NK_cell                  |          0.174589  | PanglaoDB_Augmented_2021 |
 |  2 | T cells      | T_cell                   |          0.167892  | PanglaoDB_Augmented_2021 |
 ... (and so on)
@@ -117,4 +116,4 @@ print(gsva_results_panglaodb.head()) # Display top results
 
 ## 📚 Documentation
 
-For detailed documentation and API reference, please visit [https://colab.research.google.com/drive/1fllYg_psMVt-yYXG3stQPIY803hiKvR6?usp=sharing].
+For detailed , please visit [https://colab.research.google.com/drive/1fllYg_psMVt-yYXG3stQPIY803hiKvR6?usp=sharing].
