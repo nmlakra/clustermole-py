@@ -5,21 +5,24 @@ import numpy as np
 from enrichr import GeneSetLibrary
 from typing import List
 
-def get_enrichment(data: pd.DataFrame, gene_sets: GeneSetLibrary | List[GeneSetLibrary]) -> pd.DataFrame:
+
+def get_enrichment(
+    data: pd.DataFrame, gene_sets: GeneSetLibrary | List[GeneSetLibrary]
+) -> pd.DataFrame:
     enrichment_df = gp.gsva(data, gene_sets, outdir=None).res2d
     if isinstance(gene_sets, str):
-        enrichment_df['gene_set'] = gene_sets
+        enrichment_df["gene_set"] = gene_sets
     else:
-        temp_split = enrichment_df['Term'].str.split('__', expand=True)
-        enrichment_df['Term'] = temp_split[1]
-        enrichment_df['gene_set'] = temp_split[0]
-    enrichment_df.rename(columns={
-        'Name': 'group',
-        'Term': 'term',
-        'ES': 'enrichment_score'
-    }, inplace=True)
+        temp_split = enrichment_df["Term"].str.split("__", expand=True)
+        enrichment_df["Term"] = temp_split[1]
+        enrichment_df["gene_set"] = temp_split[0]
+    enrichment_df.rename(
+        columns={"Name": "group", "Term": "term", "ES": "enrichment_score"},
+        inplace=True,
+    )
 
     return enrichment_df
+
 
 def aggregate_expression(
     adata: AnnData,
@@ -27,7 +30,7 @@ def aggregate_expression(
     scale_factor: int,
     layer: str | None = None,
     use_raw: bool = False,
-    apply_log1p: bool = True
+    apply_log1p: bool = True,
 ) -> pd.DataFrame | None:
 
     if layer and use_raw:
@@ -59,6 +62,6 @@ def aggregate_expression(
         normalized_df.loc[:, group] = normalized_vector
 
     if apply_log1p:
-            return normalized_df.map(np.log1p)
+        return normalized_df.map(np.log1p)
 
     return normalized_df
