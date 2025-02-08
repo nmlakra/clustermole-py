@@ -79,9 +79,9 @@ print(cell_type_results.head()) # Display top results
 ```
 |    | term name                             |     p-value |   odds ratio |   combined score | overlapping genes                                   |   adjusted p-value | gene_set                    |
 |---:|:--------------------------------------|------------:|-------------:|-----------------:|:----------------------------------------------------|-------------------:|:----------------------------|
-|  0 | B cell:Kidney                         | 5.08603e-18 |     103.437  |         4118.88  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]          | 8.54452e-16        | CellMarker_Augmented_2021   |
-|  1 | B Cell:Kidney Human                   | 4.98039e-18 |     103.601  |         4127.57  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]          | 9.21372e-16        | CellMarker_2024             |
-|  2 | B Cell:Lung Human                     | 1.92402e-16 |    1664.677  |        60239.22 | ['CD79B', 'CD79A', 'TCL1A', 'MZB1', ...]            | 1.77972e-14        | CellMarker_2024             |
+|  0 | B cell:Kidney                         | 5.08603e-18 |     103.437  |         4118.88  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]           | 8.54452e-16        | CellMarker_Augmented_2021   |
+|  1 | B Cell:Kidney Human                   | 4.98039e-18 |     103.601  |         4127.57  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]           | 9.21372e-16        | CellMarker_2024             |
+|  2 | B Cell:Lung Human                     | 1.92402e-16 |    1664.677  |        60239.22  | ['CD79B', 'CD79A', 'TCL1A', 'MZB1', ...]            | 1.77972e-14        | CellMarker_2024             |
 ... (and so on)
 ```
 
