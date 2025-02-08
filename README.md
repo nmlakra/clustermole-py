@@ -116,4 +116,4 @@ print(gsva_results_panglaodb.head()) # Display top results
 
 ## 📚 Documentation
 
-For detailed , please visit [https://colab.research.google.com/drive/1fllYg_psMVt-yYXG3stQPIY803hiKvR6?usp=sharing].
+[Example Notebook](examples/clustermole_py.ipynb)
