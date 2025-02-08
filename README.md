@@ -116,4 +116,4 @@ print(gsva_results_panglaodb.head()) # Display top results
 
 ## 📚 Documentation
 
-[Example Notebook](examples/clustermole_py.ipynb)
+[Example Notebook](examples/clustermole_py_usage.ipynb)
