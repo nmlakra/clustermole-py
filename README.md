@@ -1,6 +1,6 @@
 # 🧬 clustermole_py: Cluster Annotation for Single-Cell Data in Python
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [[!Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nmlakra/clustermole-py/HEAD?labpath=examples%2Fclustermole_py_usage.ipynb)
 
 `clustermole_py` is a Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** 📊 using powerful gene set enrichment analysis.
 
@@ -13,7 +13,6 @@
     * Direct query of the [Enrichr API](https://maayanlab.cloud/Enrichr/) for gene set enrichment analysis.
     * Specialized `Enrichr` module with methods like `get_enrichment()` and `get_cell_type_enrichment()`.
     *  ⚡️ **Multi-threaded `get_cell_type_enrichment()`** for fast cell type annotation using curated libraries.
-    *  Supports a wide range of Enrichr gene set libraries.
 * **GSVA Module :**
     *  Perform **Gene Set Variation Analysis (GSVA)** directly on your cluster data.
     *  `aggregate_expression()` function for easy normalization of cluster-level expression data from Scanpy `AnnData` objects.
@@ -25,12 +24,12 @@
     *  Returns enrichment results in easy-to-read tables (Pandas DataFrames - *if applicable to your package*).
     *  Output tables include p-values, adjusted p-values, combined scores, and overlapping genes for enriched terms.
 
-## 📦 Installation (Development/Local Installation)
+## 📦 Installation
 
 For this version, you can install `clustermole_py` directly from GitHub using pip:
 
 ```bash
-pip install git+[https://github.com/nmlakra/clustermole-py.git](https://github.com/nmlakra/clustermole-py.git)
+pip install git+https://github.com/nmlakra/clustermole-py.git
 ```
 
 Once installed, you can import and use `clustermole_py` in your Python environment.
@@ -116,4 +115,4 @@ print(gsva_results_panglaodb.head()) # Display top results
 
 ## 📚 Documentation
 
-[Example Notebook](examples/clustermole_py_usage.ipynb)
+Check out the [Example Notebook](examples/clustermole_py_usage.ipynb) for more information!
