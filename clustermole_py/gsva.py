@@ -35,13 +35,14 @@ def aggregate_expression(
     if layer and use_raw:
         raise Exception("Cannot have `layer` and have `use_raw=True`")
 
-    if layer is None and use_raw == False:
-        count_matrix = adata.X
+    count_matrix = None
+    if use_raw:
+        count_matrix = adata.raw.X
     elif layer is not None:
         assert adata.layers[layer] is not None, "Invailid `layer` key"
         count_matrix = adata.layers[layer]
     else:
-        count_matrix = adata.raw.X
+        count_matrix = adata.X
 
     groups = adata.obs[groupby].unique()
 
@@ -55,7 +56,6 @@ def aggregate_expression(
         group_idx = adata.obs[adata.obs[groupby] == group].reset_index().index.tolist()
         total_counts = count_matrix[group_idx].sum()  # type: ignore
         normalized_vector = (count_matrix[group_idx].sum(axis=0) / total_counts) * scale_factor  # type: ignore
-
         normalized_df.loc[:, group] = normalized_vector
 
     if apply_log1p:
