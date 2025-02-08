@@ -5,9 +5,7 @@ import numpy as np
 from typing import List
 
 
-def get_enrichment(
-    data: pd.DataFrame, gene_sets: str | List[str]
-) -> pd.DataFrame:
+def get_enrichment(data: pd.DataFrame, gene_sets: str | List[str]) -> pd.DataFrame:
     enrichment_df = gp.gsva(data, gene_sets, outdir=None).res2d
     if enrichment_df is None:
         return pd.DataFrame()
@@ -54,9 +52,7 @@ def aggregate_expression(
 
     normalized_df = pd.DataFrame(columns=groups, index=adata.var.index)
     for group in groups:
-        group_idx = adata.obs.reset_index()[adata.obs[groupby] == group][
-            groupby
-        ].tolist()
+        group_idx = adata.obs[adata.obs[groupby] == group].reset_index().index.tolist()
         total_counts = count_matrix[group_idx].sum()  # type: ignore
         normalized_vector = (count_matrix[group_idx].sum(axis=1) / total_counts) * scale_factor  # type: ignore
 
