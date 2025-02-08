@@ -1,15 +1,16 @@
-from gseapy import gp
+import gseapy as gp
 from anndata import AnnData
 import pandas as pd
 import numpy as np
-from enrichr import GeneSetLibrary
 from typing import List
 
 
 def get_enrichment(
-    data: pd.DataFrame, gene_sets: GeneSetLibrary | List[GeneSetLibrary]
+    data: pd.DataFrame, gene_sets: str | List[str]
 ) -> pd.DataFrame:
     enrichment_df = gp.gsva(data, gene_sets, outdir=None).res2d
+    if enrichment_df is None:
+        return pd.DataFrame()
     if isinstance(gene_sets, str):
         enrichment_df["gene_set"] = gene_sets
     else:
