@@ -21,7 +21,7 @@ GeneSetLibrary = Literal[
 
 class Enrichr:
 
-    enrichr_url = "https://maayanlab.cloud/enrichr/"
+    enrichr_url = "https://maayanlab.cloud/Enrichr/"
     speedrichr_url = "https://maayanlab.cloud/speedrichr/"
 
     default_cell_type_libraries: Iterable[GeneSetLibrary] = [
@@ -150,3 +150,19 @@ class Enrichr:
             )
 
         return results
+
+    @staticmethod
+    def load_gene_set(gene_set: GeneSetLibrary) -> Dict[str, Dict[str, List]]:
+        url = Enrichr.enrichr_url + "geneSetLibrary"
+        params = {"mode": "json", "libraryName": gene_set}
+
+        response = requests.get(url, params)
+        if not response.ok:
+            raise Exception(
+                f"Error fetching enrichment results, status code: {response.status_code}"
+            )
+        data = json.loads(response.text)
+        if not data[gene_set]:
+            raise Exception(f"Failed fetching the correct {gene_set}")
+
+        return {gene_set: data["terms"]}

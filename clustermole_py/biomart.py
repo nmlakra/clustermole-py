@@ -41,7 +41,7 @@ ENSEMBLE_ORGANISM_IDS = typing.get_args(EnsemblOrganismId)
 BIOMART_SERVER_URL = "http://www.ensembl.org/biomart"
 
 
-class Biomart():
+class Biomart:
 
     def __init__(self, url: str = BIOMART_SERVER_URL, verbose: bool = True):
         self.server = BiomartServer(url)
@@ -54,11 +54,12 @@ class Biomart():
         # TODO: make convert_gene_names and convert_ensembl_genes seperate wrappers around a generic function
         pass
 
-    def convert_gene_names(self,
+    def convert_gene_names(
+        self,
         genes: List[str],
         from_organism: EnsemblOrganismId,
         to_organism: EnsemblOrganismId,
-        ) -> Dict[str, List[str | None]]:
+    ) -> Dict[str, List[str | None]]:
         """
         Converts gene symbols from one organism to another using Biomart.
 
@@ -110,7 +111,9 @@ class Biomart():
 
         # Group by gene and collect homologs, filtering NaNs
         grouped = (
-            df.groupby("external_gene_name")[f"{to_organism}_homolog_associated_gene_name"]
+            df.groupby("external_gene_name")[
+                f"{to_organism}_homolog_associated_gene_name"
+            ]
             .apply(lambda x: [v for v in x if not pd.isna(v)])
             .to_dict()
         )

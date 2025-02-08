@@ -12,23 +12,24 @@ ENSEMBLE_ORGANSIM_IDS = typing.get_args(EnsemblOrgansimId)
 BIOMART_SERVER_URL = "http://www.ensembl.org/biomart"
 
 
-
 @cache
 def fetch_biomart_database(ensembl_dataset_id, url):
     server = BiomartServer(url)
     server.verbose = False
     return server.datasets[ensembl_dataset_id]
 
+
 def convert_ensembl_genes():
     # TODO: make convert_gene_names and convert_ensembl_genes seperate wrappers around a generic function
     pass
+
 
 def convert_gene_names(
     genes: List[str],
     current_organsim: EnsemblOrgansimId,
     target_organism: EnsemblOrgansimId,
     url: str = BIOMART_SERVER_URL,
-    ) -> Dict[List[str], None] :
+) -> Dict[List[str], None]:
     """
     Converts gene names from one organism to another using Biomart.
 
