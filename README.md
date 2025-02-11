@@ -62,7 +62,7 @@ for cluster_id in adata.obs['leiden'].cat.categories:
 **(2) Annotate clusters using the `Enrichr` module:**
 
 ```python
-from clustermole_py import Enrichr
+from clustermole_py.enrichr import Enrichr
 
 # Get marker genes for a cluster (e.g., "Leiden_Cluster_1")
 b_cell_markers = cluster_marker_genes["Leiden_Cluster_1"]
