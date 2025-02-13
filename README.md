@@ -22,7 +22,7 @@
     *  Designed to work seamlessly with [Scanpy](https://scanpy.readthedocs.io/en/stable/) `AnnData` objects.
     *  Example workflow uses Scanpy for data loading, clustering, and marker gene identification.
 * **Clear and Interpretable Results :**
-    *  Returns enrichment results in easy-to-read tables (Pandas DataFrames - *if applicable to your package*).
+    *  Returns enrichment results in easy-to-read Pandas DataFrame.
     *  Output tables include p-values, adjusted p-values, combined scores, and overlapping genes for enriched terms.
 
 ## 📦 Installation
