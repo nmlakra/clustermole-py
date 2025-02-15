@@ -44,6 +44,9 @@ class Enrichr:
         adj_pval_cutoff: float | None = None,
         description: str = "",
     ):
+        """
+        Initializes an `Enrichr` object and sends the gene list to Enrichr.
+        """
         self.gene_list = gene_list
         self.description = description
         self.user_list_id = None
@@ -54,10 +57,15 @@ class Enrichr:
             self.send_gene_list()
 
     def get_gene_list(self) -> List[str]:
+        """
+        Returns the gene list in uppercase and filters out non-alphanumeric entries.
+        """
         return [gene.upper() for gene in self.gene_list if gene.isalnum()]
 
     def send_gene_list(self) -> int:
-
+        """
+        Submits the gene list to Enrichr and retrieves a user list ID.
+        """
         url = Enrichr.enrichr_url + "addList"
 
         if self.gene_list:
@@ -83,8 +91,10 @@ class Enrichr:
 
     def get_enrichment(
         self, gene_set: GeneSetLibrary, sort_order: str = "adjusted p-value"
-    ) -> pd.DataFrame | pd.Series:
-
+    ) -> pd.DataFrame:
+        """
+        Fetches enrichment results for a specific gene set.
+        """
         url = Enrichr.enrichr_url + "enrich"
 
         params = {"userListId": self.user_list_id, "backgroundType": gene_set}
@@ -104,7 +114,10 @@ class Enrichr:
         enrichment_result: Dict,
         gene_set: GeneSetLibrary,
         sort_order: str | List[str],
-    ) -> pd.DataFrame | pd.Series | None:
+    ) -> pd.DataFrame | None:
+        """
+        Formats and filters enrichment results based on p-value cutoffs and sorting preferences.
+        """
         cols = [
             "rank",
             "term name",
@@ -134,6 +147,9 @@ class Enrichr:
         max_workers: int | None = None,
         sort_order: str = "adjusted p-value",
     ):
+        """
+        Runs enrichment analysis for multiple gene sets using multithreading.
+        """
 
         if gene_sets is None:
             gene_sets = Enrichr.default_cell_type_libraries
@@ -153,6 +169,9 @@ class Enrichr:
 
     @staticmethod
     def load_gene_set(gene_set: GeneSetLibrary) -> Dict[str, Dict[str, List]]:
+        """
+        Loads the gene set library from Enrichr
+        """
         url = Enrichr.enrichr_url + "geneSetLibrary"
         params = {"mode": "json", "libraryName": gene_set}
 
