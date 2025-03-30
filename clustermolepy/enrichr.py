@@ -214,7 +214,9 @@ class Enrichr:
         if gene_sets is None:
             gene_sets = Enrichr.default_cell_type_libraries
 
-        invalid_gene_sets = [gs for gs in gene_sets if gs not in self.get_valid_libraries()]
+        invalid_gene_sets = [
+            gs for gs in gene_sets if gs not in self.get_valid_libraries()
+        ]
         if invalid_gene_sets:
             raise ValueError(f"Invalid gene set libraries: {invalid_gene_sets}")
 
@@ -260,7 +262,7 @@ class Enrichr:
     @classmethod
     def _set_valid_libraries(cls, library_metadata: Dict[str, List]) -> None:
         library_details = library_metadata["statistics"]
-        cls._valid_libraries = {lib['libraryName'] for lib in library_details}
+        cls._valid_libraries = {lib["libraryName"] for lib in library_details}
 
     @classmethod
     def get_valid_libraries(cls) -> set[str]:
@@ -288,7 +290,6 @@ class Enrichr:
             return library_metadata
         else:
             raise Exception(f"Failed to fetch libraries: {response.status_code}")
-
 
     @staticmethod
     def get_libraries(

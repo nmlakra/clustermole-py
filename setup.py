@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="clustermolepy",  # Package name
-    version="0.2.0",  # Version
+    version="0.3.0",  # Version
     python_requies=">=python3.10",
     packages=find_packages(),  # Automatically finds all packages
     install_requires=[
