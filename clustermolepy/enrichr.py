@@ -47,7 +47,7 @@ class Enrichr:
     enrichr_url = "https://maayanlab.cloud/Enrichr/"
     speedrichr_url = "https://maayanlab.cloud/speedrichr/"
 
-    default_cell_type_libraries: Iterable[GeneSetLibrary] = [
+    default_cell_type_libraries = [
         "CellMarker_2024",
         "CellMarker_Augmented_2021",
         "Descartes_Cell_Types_and_Tissue_2021",
@@ -137,7 +137,7 @@ class Enrichr:
         return self.user_list_id
 
     def get_enrichment(
-        self, gene_set: GeneSetLibrary, sort_order: str = "adjusted p-value"
+        self, gene_set: str, sort_order: str = "adjusted p-value"
     ) -> pd.DataFrame:
         """
         Fetches enrichment results for a specific gene set.
@@ -166,7 +166,7 @@ class Enrichr:
     def format_enrichment_result(
         self,
         enrichment_result: Dict,
-        gene_set: GeneSetLibrary,
+        gene_set: str,
         sort_order: str | List[str],
     ) -> pd.DataFrame | None:
         """
@@ -205,7 +205,7 @@ class Enrichr:
 
     def get_cell_type_enrichment(
         self,
-        gene_sets: Iterable[GeneSetLibrary] | None = None,
+        gene_sets: Iterable[str] | None = None,
         max_workers: int | None = None,
         sort_order: str = "adjusted p-value",
     ):
@@ -238,7 +238,7 @@ class Enrichr:
         return results
 
     @staticmethod
-    def load_gene_set(gene_set: GeneSetLibrary) -> Dict[str, Dict[str, List]]:
+    def load_gene_set(gene_set: str) -> Dict[str, Dict[str, List]]:
         """
         Loads the gene set library from Enrichr
         Args:
