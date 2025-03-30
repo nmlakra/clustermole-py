@@ -3,6 +3,7 @@ import pandas as pd
 from typing import Iterable, List, Dict, Literal
 import json
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 
 
 GeneSetLibrary = Literal[
@@ -17,6 +18,28 @@ GeneSetLibrary = Literal[
     "Tabula_Muris",
     "Mouse_Gene_Atlas",
 ]
+
+GeneSetCategory = Literal[
+    "cell_types",
+    "crowd",
+    "diseases_drugs",
+    "legacy",
+    "misc",
+    "ontologies",
+    "pathways",
+    "transcription",
+]
+
+CATEGORY_NAME_MAP = {
+    "cell_types": "Cell Types",
+    "crowd": "Crowd",
+    "diseases_drugs": "Diseases/Drugs",
+    "legacy": "Legacy",
+    "misc": "Misc",
+    "ontologies": "Ontologies",
+    "pathways": "Pathways",
+    "transcription": "Transcription",
+}
 
 
 class Enrichr:
@@ -185,3 +208,42 @@ class Enrichr:
             raise Exception(f"Failed fetching the correct {gene_set}")
 
         return {gene_set: data["terms"]}
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def fetch_libraries() -> Dict[str, List]:
+        url = Enrichr.enrichr_url + "datasetStatistics"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            return data
+        else:
+            raise Exception(f"Failed to fetch libraries: {response.status_code}")
+
+
+    @staticmethod
+    def get_libraries(category: GeneSetCategory | None = None) -> pd.DataFrame:
+
+        response = Enrichr.fetch_libraries()
+        library_info = response['statistics']
+        category_info = response['categories']
+
+        library_df = pd.DataFrame(library_info).drop(["appyter"], axis=1)
+
+        if category is not None:
+            if category not in CATEGORY_NAME_MAP:
+                raise ValueError(f"Invalid category: {category}")
+
+            category_name = CATEGORY_NAME_MAP[category]
+            category_id = next((c["categoryId"] for c in category_info if c["name"] == category_name), None)
+
+            if category_id is None:
+                raise ValueError(f"{category} could not be mapped to a valid Id")
+
+            library_df = library_df.query('categoryId == @category_id')
+
+        return library_df.head()
+
+
+
