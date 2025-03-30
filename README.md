@@ -1,6 +1,7 @@
 # 🧬 clustermole_py: Cluster Annotation for Single-Cell Data in Python
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nmlakra/clustermole-py/HEAD?labpath=examples%2Fclustermole_py_usage.ipynb)
 
 `clustermole_py` is a Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** 📊 using powerful gene set enrichment analysis.
