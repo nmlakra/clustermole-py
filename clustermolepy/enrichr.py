@@ -68,8 +68,16 @@ class Enrichr:
         description: str = "",
     ):
         """
-        Initializes an `Enrichr` object and sends the gene list to Enrichr.
+        Initializes an Enrichr object and submits the gene list to the Enrichr API.
+        Args:
+            gene_list: List of gene symbols to analyze.
+            pval_cutoff: Optional unadjusted p-value cutoff to filter enrichment results.
+            adj_pval_cutoff: Optional adjusted p-value cutoff to filter enrichment results.
+            description: Optional description of the gene list.
+        Raises:
+            ValueError: If the gene list is empty or submission fails.
         """
+
         self.gene_list = gene_list
         self.description = description
         self.user_list_id = None
@@ -81,13 +89,29 @@ class Enrichr:
 
     def get_gene_list(self) -> List[str]:
         """
-        Returns the gene list in uppercase and filters out non-alphanumeric entries.
+        Initializes an Enrichr object and submits the gene list to the Enrichr API.
+
+        Args:
+            gene_list: List of gene symbols to analyze.
+            pval_cutoff: Optional unadjusted p-value cutoff to filter enrichment results.
+            adj_pval_cutoff: Optional adjusted p-value cutoff to filter enrichment results.
+            description: Optional description of the gene list.
+
+        Raises:
+            ValueError: If the gene list is empty or submission fails.
         """
         return [gene.upper() for gene in self.gene_list if gene.isalnum()]
 
     def send_gene_list(self) -> int:
         """
         Submits the gene list to Enrichr and retrieves a user list ID.
+        Args:
+            gene_list: List of gene symbols to analyze.
+            description: Optional description of the gene list.
+        Raises:
+            ValueError: If the gene list is empty or submission fails.
+        Returns:
+            user_list_id: Unique identifier for the submitted gene list.
         """
         url = Enrichr.enrichr_url + "addList"
 
@@ -117,6 +141,13 @@ class Enrichr:
     ) -> pd.DataFrame:
         """
         Fetches enrichment results for a specific gene set.
+        Args:
+            gene_set: The gene set library to use for enrichment analysis.
+            sort_order: Column name to sort the results by.
+        Returns:
+            A DataFrame containing the enrichment results.
+        Raises:
+            Exception: If the request fails or if the results cannot be formatted.
         """
         url = Enrichr.enrichr_url + "enrich"
 
@@ -140,6 +171,14 @@ class Enrichr:
     ) -> pd.DataFrame | None:
         """
         Formats and filters enrichment results based on p-value cutoffs and sorting preferences.
+        Args:
+            enrichment_result: The raw enrichment results from the API.
+            gene_set: The gene set library used for enrichment analysis.
+            sort_order: Column name or list of column names to sort the results by.
+        Returns:
+            A DataFrame containing the formatted enrichment results.
+        Raises:
+            KeyError: If the specified sort order is not found in the results.
         """
         cols = [
             "rank",
@@ -172,6 +211,14 @@ class Enrichr:
     ):
         """
         Runs enrichment analysis for multiple gene sets using multithreading.
+        Args:
+            gene_sets: List of gene set libraries to analyze.
+            max_workers: Maximum number of threads to use for parallel processing.
+            sort_order: Column name to sort the results by.
+        Returns:
+            A DataFrame containing the combined enrichment results for all gene sets.
+        Raises:
+            ValueError: If the gene sets are empty or invalid.
         """
 
         if gene_sets is None:
@@ -194,6 +241,12 @@ class Enrichr:
     def load_gene_set(gene_set: GeneSetLibrary) -> Dict[str, Dict[str, List]]:
         """
         Loads the gene set library from Enrichr
+        Args:
+            gene_set: The gene set library to load.
+        Returns:
+            A dictionary containing the gene set library.
+        Raises:
+            Exception: If the request fails or if the results cannot be formatted.
         """
         url = Enrichr.enrichr_url + "geneSetLibrary"
         params = {"mode": "json", "libraryName": gene_set}
@@ -212,6 +265,13 @@ class Enrichr:
     @staticmethod
     @lru_cache(maxsize=1)
     def fetch_libraries() -> Dict[str, List]:
+        """
+        Fetches the list of available libraries from Enrichr.
+        Returns:
+            A dictionary containing the library statistics and categories.
+        Raises:
+            Exception: If the request fails or if the results cannot be formatted.
+        """
         url = Enrichr.enrichr_url + "datasetStatistics"
         response = requests.get(url)
 
@@ -225,6 +285,16 @@ class Enrichr:
     def get_libraries(
         name: str | None = None, category: GeneSetCategory | None = None
     ) -> pd.DataFrame:
+        """
+        Fetches the list of available libraries from Enrichr and filters them based on the provided name or category.
+        Args:
+            name: Optional name or partial name of the library to filter.
+            category: Optional category to filter the libraries.
+        Returns:
+            A DataFrame containing the filtered library information.
+        Raises:
+            ValueError: If the provided category is invalid or if no libraries match the name.
+        """
 
         response = Enrichr.fetch_libraries()
         library_info = response["statistics"]
@@ -259,4 +329,5 @@ class Enrichr:
                 drop=True
             )
 
-        return library_df  # type: ignore
+        assert isinstance(library_df, pd.DataFrame)
+        return library_df
