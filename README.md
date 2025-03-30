@@ -1,10 +1,10 @@
-# 🧬 clustermole_py: Cluster Annotation for Single-Cell Data in Python
+# 🧬 clustermolepy: Cluster Annotation for Single-Cell Data in Python
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nmlakra/clustermole-py/HEAD?labpath=examples%2Fclustermole_py_usage.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nmlakra/clustermole-py/HEAD?labpath=examples%2Fclustermolepy_usage.ipynb)
 
-`clustermole_py` is a Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** 📊 using powerful gene set enrichment analysis.
+`clustermolepy` is a Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** 📊 using powerful gene set enrichment analysis.
 
 ✨ Give your clusters biological meaning with **Enrichr** and **GSVA**! ✨
 
@@ -28,18 +28,18 @@
 
 ## 📦 Installation
 
-For this version, you can install `clustermole_py` directly from GitHub using pip:
+For this version, you can install `clustermolepy` directly from GitHub using pip:
 
 ```bash
 pip install git+https://github.com/nmlakra/clustermole-py.git
 ```
 
-Once installed, you can import and use `clustermole_py` in your Python environment.
+Once installed, you can import and use `clustermolepy` in your Python environment.
 
 
 ## 🕹️ Quick Usage Example
 
-Here's a simplified example of how to use `clustermole_py` to annotate cell clusters. For a more detailed walkthrough, check out the Jupyter Notebook in the `examples` directory\!
+Here's a simplified example of how to use `clustermolepy` to annotate cell clusters. For a more detailed walkthrough, check out the Jupyter Notebook in the `examples` directory\!
 
 **(1) Prepare your single-cell data and perform clustering using Scanpy:**
 
@@ -63,7 +63,7 @@ for cluster_id in adata.obs['leiden'].cat.categories:
 **(2) Annotate clusters using the `Enrichr` module:**
 
 ```python
-from clustermole_py.enrichr import Enrichr
+from clustermolepy.enrichr import Enrichr
 
 # Get marker genes for a cluster (e.g., "Leiden_Cluster_1")
 b_cell_markers = cluster_marker_genes["Leiden_Cluster_1"]
@@ -89,7 +89,7 @@ print(cell_type_results.head()) # Display top results
 **(3) Annotate clusters using the `gsva` module (DE-free approach):**
 
 ```python
-from clustermole_py import gsva
+from clustermolepy import gsva
 
 # Aggregate expression data
 normalized_data_leiden = gsva.aggregate_expression(
@@ -117,4 +117,4 @@ print(gsva_results_panglaodb.head()) # Display top results
 
 ## 📚 Documentation
 
-Check out the [Example Notebook](examples/clustermole_py_usage.ipynb) for more information!
+Check out the [Example Notebook](examples/clustermolepy_usage.ipynb) for more information!
