@@ -6,19 +6,6 @@ from typing import Dict, Iterable, List, Literal
 import pandas as pd
 import requests
 
-GeneSetLibrary = Literal[
-    "CellMarker_2024",
-    "CellMarker_Augmented_2021",
-    "Descartes_Cell_Types_and_Tissue_2021",
-    "PanglaoDB_Augmented_2021",
-    "Azimuth_Cell_Types_2021",
-    "Azimuth_2023",
-    "Tabula_Sapiens",
-    "Human_Gene_Atlas",
-    "Tabula_Muris",
-    "Mouse_Gene_Atlas",
-]
-
 GeneSetCategory = Literal[
     "cell_types",
     "crowd",
@@ -46,6 +33,8 @@ class Enrichr:
 
     enrichr_url = "https://maayanlab.cloud/Enrichr/"
     speedrichr_url = "https://maayanlab.cloud/speedrichr/"
+
+    _valid_libraries: set[str] | None = None
 
     default_cell_type_libraries = [
         "CellMarker_2024",
@@ -89,8 +78,7 @@ class Enrichr:
 
     def get_gene_list(self) -> List[str]:
         """
-        Initializes an Enrichr object and submits the gene list to the Enrichr API.
-
+        Returns a cleaned version of the gene list with uppercase alphanumeric entries only.
         Args:
             gene_list: List of gene symbols to analyze.
             pval_cutoff: Optional unadjusted p-value cutoff to filter enrichment results.
@@ -149,6 +137,9 @@ class Enrichr:
         Raises:
             Exception: If the request fails or if the results cannot be formatted.
         """
+        if gene_set not in self.get_valid_libraries():
+            raise ValueError(f"Invalid gene set library name: {gene_set}")
+
         url = Enrichr.enrichr_url + "enrich"
 
         params = {"userListId": self.user_list_id, "backgroundType": gene_set}
@@ -220,9 +211,13 @@ class Enrichr:
         Raises:
             ValueError: If the gene sets are empty or invalid.
         """
-
         if gene_sets is None:
             gene_sets = Enrichr.default_cell_type_libraries
+
+        invalid_gene_sets = [gs for gs in gene_sets if gs not in self.get_valid_libraries()]
+        if invalid_gene_sets:
+            raise ValueError(f"Invalid gene set libraries: {invalid_gene_sets}")
+
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             results = (
                 pd.concat(  # type: ignore
@@ -262,6 +257,19 @@ class Enrichr:
 
         return {gene_set: data["terms"]}
 
+    @classmethod
+    def _set_valid_libraries(cls, library_metadata: Dict[str, List]) -> None:
+        library_details = library_metadata["statistics"]
+        cls._valid_libraries = {lib['libraryName'] for lib in library_details}
+
+    @classmethod
+    def get_valid_libraries(cls) -> set[str]:
+        if cls._valid_libraries is None:
+            library_metadata = cls.fetch_libraries()
+            cls._set_valid_libraries(library_metadata)
+        assert cls._valid_libraries is not None
+        return cls._valid_libraries
+
     @staticmethod
     @lru_cache(maxsize=1)
     def fetch_libraries() -> Dict[str, List]:
@@ -276,10 +284,11 @@ class Enrichr:
         response = requests.get(url)
 
         if response.status_code == 200:
-            data = response.json()
-            return data
+            library_metadata = response.json()
+            return library_metadata
         else:
             raise Exception(f"Failed to fetch libraries: {response.status_code}")
+
 
     @staticmethod
     def get_libraries(
@@ -296,9 +305,9 @@ class Enrichr:
             ValueError: If the provided category is invalid or if no libraries match the name.
         """
 
-        response = Enrichr.fetch_libraries()
-        library_info = response["statistics"]
-        category_info = response["categories"]
+        library_metadata = Enrichr.fetch_libraries()
+        library_info = library_metadata["statistics"]
+        category_info = library_metadata["categories"]
 
         library_df = pd.DataFrame(library_info).drop(["appyter"], axis=1)
 
