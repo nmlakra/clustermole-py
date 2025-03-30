@@ -10,8 +10,12 @@ class TestEnrichr(unittest.TestCase):
         self.enrichr = Enrichr(self.genes)
 
 
-    def test_get_libraries(self):
-        libraries = self.enrichr.get_libraries("cell_types")
+    def test_get_libraries_name(self):
+        libraries = self.enrichr.get_libraries(name="KEGG")
+        pprint(libraries)
+
+    def test_get_libraries_category(self):
+        libraries = self.enrichr.get_libraries(category="cell_types")
         pprint(libraries)
 
 

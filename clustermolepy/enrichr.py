@@ -223,7 +223,7 @@ class Enrichr:
 
 
     @staticmethod
-    def get_libraries(category: GeneSetCategory | None = None) -> pd.DataFrame:
+    def get_libraries(name: str | None = None, category: GeneSetCategory | None = None) -> pd.DataFrame:
 
         response = Enrichr.fetch_libraries()
         library_info = response['statistics']
@@ -231,6 +231,14 @@ class Enrichr:
 
         library_df = pd.DataFrame(library_info).drop(["appyter"], axis=1)
 
+        # Fuzzy matching the get set library names
+        if name is not None:
+            library_df = library_df[library_df['libraryName'].str.contains(name, case=False)].reset_index(drop=True)
+
+            if library_df.empty:
+                raise ValueError(f"{name} could not be matched with any library")
+
+        # Filtering results by category
         if category is not None:
             if category not in CATEGORY_NAME_MAP:
                 raise ValueError(f"Invalid category: {category}")
@@ -241,9 +249,9 @@ class Enrichr:
             if category_id is None:
                 raise ValueError(f"{category} could not be mapped to a valid Id")
 
-            library_df = library_df.query('categoryId == @category_id')
+            library_df = library_df.query('categoryId == @category_id').reset_index(drop=True)
 
-        return library_df.head()
+        return library_df #type: ignore
 
 
 
