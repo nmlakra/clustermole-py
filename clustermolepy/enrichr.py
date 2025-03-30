@@ -1,10 +1,10 @@
-import requests
-import pandas as pd
-from typing import Iterable, List, Dict, Literal
 import json
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
+from typing import Dict, Iterable, List, Literal
 
+import pandas as pd
+import requests
 
 GeneSetLibrary = Literal[
     "CellMarker_2024",
@@ -221,19 +221,22 @@ class Enrichr:
         else:
             raise Exception(f"Failed to fetch libraries: {response.status_code}")
 
-
     @staticmethod
-    def get_libraries(name: str | None = None, category: GeneSetCategory | None = None) -> pd.DataFrame:
+    def get_libraries(
+        name: str | None = None, category: GeneSetCategory | None = None
+    ) -> pd.DataFrame:
 
         response = Enrichr.fetch_libraries()
-        library_info = response['statistics']
-        category_info = response['categories']
+        library_info = response["statistics"]
+        category_info = response["categories"]
 
         library_df = pd.DataFrame(library_info).drop(["appyter"], axis=1)
 
         # Fuzzy matching the get set library names
         if name is not None:
-            library_df = library_df[library_df['libraryName'].str.contains(name, case=False)].reset_index(drop=True)
+            library_df = library_df[
+                library_df["libraryName"].str.contains(name, case=False)
+            ].reset_index(drop=True)
 
             if library_df.empty:
                 raise ValueError(f"{name} could not be matched with any library")
@@ -244,14 +247,16 @@ class Enrichr:
                 raise ValueError(f"Invalid category: {category}")
 
             category_name = CATEGORY_NAME_MAP[category]
-            category_id = next((c["categoryId"] for c in category_info if c["name"] == category_name), None)
+            category_id = next(
+                (c["categoryId"] for c in category_info if c["name"] == category_name),
+                None,
+            )
 
             if category_id is None:
                 raise ValueError(f"{category} could not be mapped to a valid Id")
 
-            library_df = library_df.query('categoryId == @category_id').reset_index(drop=True)
+            library_df = library_df.query("categoryId == @category_id").reset_index(
+                drop=True
+            )
 
-        return library_df #type: ignore
-
-
-
+        return library_df  # type: ignore
