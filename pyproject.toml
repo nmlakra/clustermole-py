@@ -7,7 +7,7 @@ name = "clustermolepy"
 version = "0.2.0"
 description = "Cluster annotation helper for single-cell RNA-seq data in Python"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 
 authors = [
