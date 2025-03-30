@@ -78,15 +78,9 @@ class Enrichr:
 
     def get_gene_list(self) -> List[str]:
         """
-        Returns a cleaned version of the gene list with uppercase alphanumeric entries only.
-        Args:
-            gene_list: List of gene symbols to analyze.
-            pval_cutoff: Optional unadjusted p-value cutoff to filter enrichment results.
-            adj_pval_cutoff: Optional adjusted p-value cutoff to filter enrichment results.
-            description: Optional description of the gene list.
-
-        Raises:
-            ValueError: If the gene list is empty or submission fails.
+        Returns a cleaned version of the gene list in uppercase.
+        Returns:
+            A list of gene symbols in uppercase, excluding non-alphanumeric entries.
         """
         return [gene.upper() for gene in self.gene_list if gene.isalnum()]
 
