@@ -176,10 +176,10 @@ class Enrichr:
 
         if gene_sets is None:
             gene_sets = Enrichr.default_cell_type_libraries
-        with ThreadPoolExecutor(max_workers=max_workers):
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             results = (
                 pd.concat(  # type: ignore
-                    map(
+                    executor.map(
                         lambda gene_set: self.get_enrichment(gene_set, sort_order),
                         gene_sets,
                     )
