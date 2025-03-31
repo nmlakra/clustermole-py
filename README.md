@@ -83,7 +83,7 @@ print(cell_type_results.head()) # Display top results
 **(3) Cross-species gene conversion using Biomart:**
 
 ```python
-from clustermolepy.biomart import Biomart
+from clustermolepy.utils import Biomart
 
 # Convert gene names from human to mouse
 bm = Biomart()
