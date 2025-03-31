@@ -1,13 +1,12 @@
+import json
+import os
 from io import StringIO
 from json.decoder import JSONDecodeError
 from typing import Dict, List
-from platformdirs import user_cache_dir
-import os
-import json
-
 
 import pandas as pd
 from biomart import BiomartServer
+from platformdirs import user_cache_dir
 
 APP_NAME = "clustermolepy"
 CACHE_FILE = os.path.join(user_cache_dir(APP_NAME), "valid_organisms.json")
@@ -17,17 +16,52 @@ BIOMART_SERVER_URL = "http://www.ensembl.org/biomart"
 
 class Biomart:
 
-    def __init__(self, url: str = BIOMART_SERVER_URL, verbose: bool = True, cache_file: str = CACHE_FILE):
+    def __init__(
+        self,
+        url: str = BIOMART_SERVER_URL,
+        verbose: bool = True,
+        cache_file: str = CACHE_FILE,
+    ):
+        """
+        Initializes the Biomart class.
+
+        Args:
+            url: URL of the Biomart server.
+            verbose: If True, prints additional information.
+            cache_file: Path to the cache file for valid organisms.
+        """
+        self.url = url
         self.server = BiomartServer(url)
         self.server.verbose = verbose
         self.cache_file = cache_file
         self.valid_organisms = self._load_valid_organisms()
 
+    def fetch_biomart_database(self, ensembl_dataset_id: str) -> BiomartServer:
+        """
+        Fetches the Biomart database for a given Ensembl dataset ID.
 
-    def fetch_biomart_database(self, ensembl_dataset_id):
+        Args:
+            ensembl_dataset_id: Ensembl dataset ID.
+        Returns:
+            BiomartServer object for the specified dataset.
+        Raises:
+            KeyError: If the dataset ID is not valid.
+        """
         return self.server.datasets[ensembl_dataset_id]
 
     def _load_valid_organisms(self) -> set:
+        """
+        Load the set of valid organisms from a cache file.
+
+        This method checks if the specified cache file exists. If it does, it attempts
+        to load the contents of the file as a JSON object and convert it into a set.
+        If the file cannot be decoded as JSON, an empty set is returned. If the cache
+        file does not exist, an empty set is also returned.
+
+        Returns:
+            set: A set of valid organisms loaded from the cache file, or an empty set
+            if the file does not exist or cannot be decoded.
+        """
         if os.path.exists(self.cache_file):
             try:
                 with open(self.cache_file) as f:
@@ -37,11 +71,34 @@ class Biomart:
         return set()
 
     def _save_valid_organisms(self):
+        """
+        Saves the list of valid organisms to a cache file.
+
+        This method ensures that the directory for the cache file exists,
+        and then writes the sorted list of valid organisms to the file in JSON format.
+
+        Raises:
+            OSError: If there is an issue creating the directory or writing to the file.
+        """
         os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
         with open(self.cache_file, "w") as f:
             json.dump(sorted(self.valid_organisms), f)
 
     def _validate_organsim(self, organism: str):
+        """
+        Validates whether the given organism is supported.
+
+        This method checks if the provided organism is in the list of valid organisms.
+        If not, it attempts to query the Biomart server to verify its availability.
+        If the organism is found in Biomart, it is added to the list of valid organisms
+        and the updated list is saved. Otherwise, a ValueError is raised.
+
+        Args:
+            organism (str): The name of the organism to validate.
+
+        Raises:
+            ValueError: If the organism is not valid or not available in Biomart.
+        """
 
         if organism in self.valid_organisms:
             return
@@ -52,8 +109,9 @@ class Biomart:
             self.valid_organisms.add(organism)
             self._save_valid_organisms()
         except KeyError:
-            raise ValueError(f"Organism `{organism}` is not a valid or available in Biomart")
-
+            raise ValueError(
+                f"Organism `{organism}` is not a valid or available in Biomart"
+            )
 
     def _convert(
         self,
@@ -84,7 +142,6 @@ class Biomart:
             raise ValueError("Input query list is empty")
         self._validate_organsim(from_organism)
         self._validate_organsim(to_organism)
-
 
         result = {val: [] for val in query_values}
         dataset_id = f"{from_organism}_gene_ensembl"
@@ -154,4 +211,3 @@ class Biomart:
             filter_name="external_gene_name",
             query_column="external_gene_name",
         )
-

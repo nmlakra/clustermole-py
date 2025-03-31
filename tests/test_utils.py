@@ -1,9 +1,8 @@
-
+import json
+import os
+import tempfile
 import unittest
 from unittest.mock import MagicMock
-import tempfile
-import os
-import json
 
 from clustermolepy.utils import Biomart
 
@@ -26,8 +25,7 @@ class TestBiomart(unittest.TestCase):
         }
 
         self.mock_response_text = (
-            "ENSG00000141510\tTP53\tTrp53\n"
-            "ENSG00000012048\tBRCA1\tBrca1\n"
+            "ENSG00000141510\tTP53\tTrp53\n" "ENSG00000012048\tBRCA1\tBrca1\n"
         )
 
         self.hsapiens_dataset.search.return_value.text = self.mock_response_text
@@ -58,7 +56,9 @@ class TestBiomart(unittest.TestCase):
 
     def test_same_organism_raises(self):
         with self.assertRaises(ValueError):
-            self.biomart.convert_ensembl_ids(["ENSG00000141510"], "hsapiens", "hsapiens")
+            self.biomart.convert_ensembl_ids(
+                ["ENSG00000141510"], "hsapiens", "hsapiens"
+            )
 
     def test_cache_file_writes(self):
         # Make sure it saves validated organisms
@@ -70,4 +70,3 @@ class TestBiomart(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

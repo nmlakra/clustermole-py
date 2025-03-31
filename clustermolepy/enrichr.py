@@ -58,6 +58,7 @@ class Enrichr:
     ):
         """
         Initializes an Enrichr object and submits the gene list to the Enrichr API.
+
         Args:
             gene_list: List of gene symbols to analyze.
             pval_cutoff: Optional unadjusted p-value cutoff to filter enrichment results.
@@ -79,6 +80,7 @@ class Enrichr:
     def get_gene_list(self) -> List[str]:
         """
         Returns a cleaned version of the gene list in uppercase.
+
         Returns:
             A list of gene symbols in uppercase, excluding non-alphanumeric entries.
         """
@@ -87,6 +89,7 @@ class Enrichr:
     def send_gene_list(self) -> int:
         """
         Submits the gene list to Enrichr and retrieves a user list ID.
+
         Args:
             gene_list: List of gene symbols to analyze.
             description: Optional description of the gene list.
@@ -123,6 +126,7 @@ class Enrichr:
     ) -> pd.DataFrame:
         """
         Fetches enrichment results for a specific gene set.
+
         Args:
             gene_set: The gene set library to use for enrichment analysis.
             sort_order: Column name to sort the results by.
@@ -156,6 +160,7 @@ class Enrichr:
     ) -> pd.DataFrame | None:
         """
         Formats and filters enrichment results based on p-value cutoffs and sorting preferences.
+
         Args:
             enrichment_result: The raw enrichment results from the API.
             gene_set: The gene set library used for enrichment analysis.
@@ -196,6 +201,7 @@ class Enrichr:
     ):
         """
         Runs enrichment analysis for multiple gene sets using multithreading.
+
         Args:
             gene_sets: List of gene set libraries to analyze.
             max_workers: Maximum number of threads to use for parallel processing.
@@ -231,7 +237,8 @@ class Enrichr:
     @staticmethod
     def load_gene_set(gene_set: str) -> Dict[str, Dict[str, List]]:
         """
-        Loads the gene set library from Enrichr
+        Loads the gene set library from Enrichr.
+
         Args:
             gene_set: The gene set library to load.
         Returns:
@@ -255,11 +262,27 @@ class Enrichr:
 
     @classmethod
     def _set_valid_libraries(cls, library_metadata: Dict[str, List]) -> None:
+        """
+        Sets the valid libraries based on the fetched metadata.
+        This method is called internally to initialize the valid libraries.
+
+        Args:
+            library_metadata: The metadata containing library statistics and categories.
+        """
         library_details = library_metadata["statistics"]
         cls._valid_libraries = {lib["libraryName"] for lib in library_details}
 
     @classmethod
     def get_valid_libraries(cls) -> set[str]:
+        """
+        This method fetches the library metadata if it has not been previously set.
+        It then sets the valid libraries based on the fetched metadata.
+
+        Returns:
+            A set of valid library names.
+        Raises:
+            Exception: If the request fails or if the results cannot be formatted.
+        """
         if cls._valid_libraries is None:
             library_metadata = cls.fetch_libraries()
             cls._set_valid_libraries(library_metadata)
@@ -271,6 +294,7 @@ class Enrichr:
     def fetch_libraries() -> Dict[str, List]:
         """
         Fetches the list of available libraries from Enrichr.
+
         Returns:
             A dictionary containing the library statistics and categories.
         Raises:
@@ -291,6 +315,7 @@ class Enrichr:
     ) -> pd.DataFrame:
         """
         Fetches the list of available libraries from Enrichr and filters them based on the provided name or category.
+
         Args:
             name: Optional name or partial name of the library to filter.
             category: Optional category to filter the libraries.
