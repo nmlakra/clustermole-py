@@ -90,7 +90,7 @@ bm = Biomart()
 result = bm.convert_gene_names(
     genes=["TP53", "CD4", "FOXP3"], # Example gene names
     from_organism="hsapiens", # Human
-    to_organism="mmusculus"
+    to_organism="mmusculus" # Mouse
 )
 print(result)
 ```
