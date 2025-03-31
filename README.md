@@ -13,13 +13,12 @@
 * **Enrichr Integration :**
     * Direct query of the [Enrichr API](https://maayanlab.cloud/Enrichr/) for gene set enrichment analysis.
     * Specialized `Enrichr` module with methods like `get_enrichment()` and `get_cell_type_enrichment()`.
-    * ⚡️ **Multi-threaded `get_cell_type_enrichment()`** for fast cell type annotation using curated libraries.
+    * Multi-threaded `get_cell_type_enrichment()` for fast cell type annotation using curated libraries.
 * **Scanpy Integration :**
     * Designed to work seamlessly with [Scanpy](https://scanpy.readthedocs.io/en/stable/) `AnnData` objects.
     * Example workflow uses Scanpy for data loading, clustering, and marker gene identification.
-* **Clear and Interpretable Results :**
-    * Returns enrichment results in easy-to-read Pandas DataFrame.
-    * Output tables include p-values, adjusted p-values, combined scores, and overlapping genes for enriched terms.
+* **Biomart Integration :**
+    * Easily convert gene symbols across species using the Ensembl Biomart API.
 
 
 ## 📦 Installation
@@ -81,6 +80,31 @@ print(cell_type_results.head()) # Display top results
 |  2 | B Cell:Lung Human                     | 1.92402e-16 |    1664.677  |        60239.22  | ['CD79B', 'CD79A', 'TCL1A', 'MZB1', ...]            | 1.77972e-14        | CellMarker_2024             |
 ... (and so on)
 ```
+**(3) Cross-species gene conversion using Biomart:**
+
+```python
+from clustermolepy.biomart import Biomart
+
+# Convert gene names from human to mouse
+bm = Biomart()
+result = bm.convert_gene_names(
+    genes=["TP53", "CD4", "FOXP3"], # Example gene names
+    from_organism="hsapiens", # Human
+    to_organism="mmusculus"
+)
+print(result)
+```
+
+**(Example Output)**
+
+```python
+{
+  'TP53': ['Trp53'],
+  'CD4': ['Cd4'],
+  'FOXP3': ['Foxp3']
+}
+```
+
 ## 📚 Documentation
 
 Check out the [Example Notebook](examples/clustermolepy_usage.ipynb) for more information!

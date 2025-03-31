@@ -24,7 +24,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "pytest",
   "flake8",
   "isort",
   "black",
@@ -38,13 +37,6 @@ packages = ["clustermolepy"]
 
 [tool.setuptools.package-dir]
 "" = "."
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q"
-testpaths = [
-    "tests"
-]
 
 [tool.flake8]
 max-line-length = 88
