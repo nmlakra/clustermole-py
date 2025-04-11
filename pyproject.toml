@@ -14,6 +14,14 @@ authors = [
   {name = "Nikhil Mark Lakra", email = "nikhilmarklakra@gmail.com"}
 ]
 
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: BioInformatics"
+]
+
 dependencies = [
   "pandas",
   "requests",
@@ -32,8 +40,8 @@ dev = [
   "jupyter"
 ]
 
-[tool.setuptools]
-packages = ["clustermolepy"]
+[tool.setuptools.packages.find]
+where = ["."]
 
 [tool.setuptools.package-dir]
 "" = "."
