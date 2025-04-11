@@ -6,8 +6,6 @@
 
 `clustermolepy` is a Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** 📊 using powerful gene set enrichment analysis.
 
-✨ Give your clusters biological meaning with **Enrichr**! ✨
-
 ## 🚀 Key Features
 
 * **Enrichr Integration :**
