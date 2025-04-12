@@ -21,10 +21,10 @@
 
 ## 📦 Installation
 
-For this version, you can install `clustermolepy` directly from GitHub using pip:
+You can install the stable release from PyPI using pip:
 
 ```bash
-pip install git+https://github.com/nmlakra/clustermole-py.git
+pip install clustermolepy
 ```
 
 Once installed, you can import and use `clustermolepy` in your Python environment.
