@@ -1,17 +1,17 @@
-# 🧬 clustermolepy: Cluster Annotation for Single-Cell Data in Python
+# 🧬 clustermolepy: Fast Enrichment for Annotating Single-Cell Clusters
+
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nmlakra/clustermole-py/HEAD?labpath=examples%2Fclustermolepy_usage.ipynb)
 
-`clustermolepy` is a Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** 📊 using powerful gene set enrichment analysis.
+`clustermolepy` is a light weight Python package inspired by the original [clustermole](https://github.com/igordot/clustermole) R package. It's designed to help you **annotate cell clusters from single-cell RNA-seq data** using powerful gene set enrichment analysis.
 
 ## 🚀 Key Features
 
 * **Enrichr Integration :**
     * Direct query of the [Enrichr API](https://maayanlab.cloud/Enrichr/) for gene set enrichment analysis.
-    * Specialized `Enrichr` module with methods like `get_enrichment()` and `get_cell_type_enrichment()`.
-    * Multi-threaded `get_cell_type_enrichment()` for fast cell type annotation using curated libraries.
+    * Multi-threaded `get_cell_type_enrichment()` for fast cell type enrichment using curated gene set libraries.
 * **Scanpy Integration :**
     * Designed to work seamlessly with [Scanpy](https://scanpy.readthedocs.io/en/stable/) `AnnData` objects.
     * Example workflow uses Scanpy for data loading, clustering, and marker gene identification.
@@ -34,75 +34,61 @@ Once installed, you can import and use `clustermolepy` in your Python environmen
 
 Here's a simplified example of how to use `clustermolepy` to annotate cell clusters. For a more detailed walkthrough, check out the Jupyter Notebook in the `examples` directory\!
 
-**(1) Prepare your single-cell data and perform clustering using Scanpy:**
+**Example: Interpreting a PBMC Cluster**
 
 ```python
 import scanpy as sc
-
-# Load data and perform Leiden clustering (example using pbmc3k dataset)
-adata = sc.datasets.pbmc3k_processed()
-sc.tl.leiden(adata, flavor='igraph', n_iterations=2, resolution=0.5)
-
-# Identify marker genes for each cluster (example using Wilcoxon rank-sum test)
-sc.tl.rank_genes_groups(adata, 'leiden', method='wilcoxon')
-top_n_markers = 25
-cluster_marker_genes = {}
-for cluster_id in adata.obs['leiden'].cat.categories:
-    markers = sc.get.rank_genes_groups_df(adata, group=cluster_id, key='rank_genes_groups', return_names=True)
-    top_genes = markers['names'][:top_n_markers].tolist()
-    cluster_marker_genes[f"Leiden_Cluster_{cluster_id}"] = top_genes
-```
-
-**(2) Annotate clusters using the `Enrichr` module:**
-
-```python
 from clustermolepy.enrichr import Enrichr
 
-# Get marker genes for a cluster (e.g., "Leiden_Cluster_1")
-b_cell_markers = cluster_marker_genes["Leiden_Cluster_1"]
+# Load PBMC data and cluster
+adata = sc.datasets.pbmc3k_processed()
+sc.tl.leiden(adata, resolution=0.5, n_iterations=2, flavor='igraph')
 
-# Initialize Enrichr and get cell type enrichment
-enrichr_cell_type = Enrichr(gene_list=b_cell_markers, pval_cutoff=0.05)
-cell_type_results = enrichr_cell_type.get_cell_type_enrichment()
+# Get top marker genes for a cluster
+sc.tl.rank_genes_groups(adata, 'leiden', method='wilcoxon')
+markers = sc.get.rank_genes_groups_df(adata, group='1')
+top_genes = markers['names'][:25].tolist()
 
-print(cell_type_results.head()) # Display top results
+# Run enrichment
+enr = Enrichr(gene_list=top_genes)
+df = enr.get_cell_type_enrichment()
+print(df.head(3))
 ```
 
-**(Example Output - first few rows of the table)**
 
+This will return a table with top matching cell types across multiple reference libraries like CellMarker, PanglaoDB, Azimuth, and more.
+
+**(Example Output - first 3 rows of the table):**
+```markdown
+|    | term name               |     p-value |   odds ratio |   combined score | overlapping genes                                                                                            |   adjusted p-value |   old p-value |   old adjusted p-value | gene_set                 |
+|---:|:------------------------|------------:|-------------:|-----------------:|:-------------------------------------------------------------------------------------------------------------|-------------------:|--------------:|-----------------------:|:-------------------------|
+|  0 | B Cells Naive           | 9.79493e-24 |      571.108 |          30257.4 | ['CD79B', 'VPREB3', 'CD74', 'CD79A', 'FCER2', 'TCL1A', 'BANK1', 'LINC00926', 'LY86', 'CD37', 'LTB', 'MS4A1'] |        3.82002e-22 |             0 |                      0 | PanglaoDB_Augmented_2021 |
+|  1 | B Cells                 | 9.91341e-23 |      466.235 |          23622.1 | ['CD79B', 'VPREB3', 'CD74', 'CD79A', 'FCER2', 'BANK1', 'HVCN1', 'LY86', 'CXCR4', 'CD37', 'LTB', 'MS4A1']     |        1.93312e-21 |             0 |                      0 | PanglaoDB_Augmented_2021 |
+|  2 | B Cell Liver CL:0000236 | 7.54304e-22 |      622.531 |          30277.6 | ['CD79B', 'VPREB3', 'CD74', 'CD79A', 'BANK1', 'HVCN1', 'CXCR4', 'CD37', 'LTB', 'MS4A1']                      |        8.80014e-21 |             0 |                      0 | Tabula_Muris             |
 ```
-|    | term name                             |     p-value |   odds ratio |   combined score | overlapping genes                                   |   adjusted p-value | gene_set                    |
-|---:|:--------------------------------------|------------:|-------------:|-----------------:|:----------------------------------------------------|-------------------:|:----------------------------|
-|  0 | B cell:Kidney                         | 5.08603e-18 |     103.437  |         4118.88  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]           | 8.54452e-16        | CellMarker_Augmented_2021   |
-|  1 | B Cell:Kidney Human                   | 4.98039e-18 |     103.601  |         4127.57  | ['SMIM14', 'EAF2', 'CD79B', 'CD79A', ...]           | 9.21372e-16        | CellMarker_2024             |
-|  2 | B Cell:Lung Human                     | 1.92402e-16 |    1664.677  |        60239.22  | ['CD79B', 'CD79A', 'TCL1A', 'MZB1', ...]            | 1.77972e-14        | CellMarker_2024             |
-... (and so on)
-```
-**(3) Cross-species gene conversion using Biomart:**
+**Example: Cross-Species Gene Mapping**
 
 ```python
 from clustermolepy.utils import Biomart
 
-# Convert gene names from human to mouse
 bm = Biomart()
 result = bm.convert_gene_names(
-    genes=["TP53", "CD4", "FOXP3"], # Example gene names
-    from_organism="hsapiens", # Human
-    to_organism="mmusculus" # Mouse
+    genes=["TP53", "CD4", "FOXP3"],
+    from_organism="hsapiens",
+    to_organism="mmusculus"
 )
 print(result)
 ```
 
 **(Example Output)**
 
-```python
+```
 {
   'TP53': ['Trp53'],
   'CD4': ['Cd4'],
   'FOXP3': ['Foxp3']
 }
 ```
-
 ## 📚 Documentation
 
 Check out the [Example Notebook](examples/clustermolepy_usage.ipynb) for more information!
