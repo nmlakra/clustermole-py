@@ -5,7 +5,7 @@ Author: Nikhil Mark Lakra
 License: MIT
 """
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 from .enrichr import Enrichr
 from .utils import Biomart
